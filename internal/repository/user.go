@@ -1,10 +1,13 @@
 package repository
 
-import "backend/internal/models"
+import (
+	     "backend/internal/models"
+         "errors"
+       )
 
 type UserRepository interface {
 	GetAll() []models.User
-	// GetByID(id string) (*models.User, error)
+	GetByID(id int) (*models.User, error)
 	// Create(user *models.User) error
 }
 
@@ -23,4 +26,16 @@ func (r *UserRepo) GetAll() []models.User {
 		return []models.User{}
 	}
 	return *r.db
+}
+
+func (r *UserRepo) GetByID(id int) (*models.User, error) {
+    if r.db == nil {
+        return nil, errors.New("repository belum dibuat")
+    }
+    for _, user := range *r.db {
+        if user.ID == id {
+            return &user, nil
+        }
+    }
+    return nil, errors.New("user tidak ditemukan")
 }

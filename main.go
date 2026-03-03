@@ -17,6 +17,7 @@ func main() {
 	users := r.Group("/users")
 	{
 		users.GET("", userHandler.GetAll)
+		users.GET("/:id", userHandler.GetByID)
 	}
 
 	r.Run("localhost:8888")
