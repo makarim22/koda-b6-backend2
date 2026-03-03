@@ -1,14 +1,16 @@
 package repository
 
 import (
-	     "backend/internal/models"
-         "errors"
-       )
+	"backend/internal/models"
+	"errors"
+	"fmt"
+)
 
 type UserRepository interface {
 	GetAll() []models.User
 	GetByID(id int) (*models.User, error)
 	Create(user *models.User) (*models.User, error) 
+	Update(id int, user *models.User) (*models.User, error)
 }
 
 type UserRepo struct {
@@ -65,4 +67,42 @@ func (r *UserRepo) Create(userToSave *models.User) (*models.User, error) {
     *r.db = append(*r.db, *userToSave) 
 
     return userToSave, nil 
+}
+
+// func (r* UserRepo) Update(id int, updatedUser *models.User) (*models.User, error){
+// 	  if r.db == nil {
+//         return nil, errors.New("repository not initialized")
+//     }
+	
+// 	fmt.Println(updatedUser)
+// 	for i, user := range *r.db{
+// 		if user.ID == id {
+// 			user.Name = updatedUser.Name
+// 			user.Password = updatedUser.Password
+// 			user.Phone = updatedUser.Phone
+
+//             (*r.db)[i]= user
+// 			return &user, nil
+
+// 		}
+// 	}
+// 	return nil, errors.New("user tidak ditemukan")
+// }
+
+func (r* UserRepo) Update(id int, updatedUser *models.User) (*models.User, error){
+	  if r.db == nil {
+        return nil, errors.New("repository not initialized")
+    }
+	
+	fmt.Println(updatedUser)
+	for i, user := range *r.db { 
+		if user.ID == id {
+			(*r.db)[i].Name = updatedUser.Name
+			(*r.db)[i].Password = updatedUser.Password
+			(*r.db)[i].Phone = updatedUser.Phone
+
+			return &(*r.db)[i], nil 
+		}
+	}
+	return nil, errors.New("user tidak ditemukan")
 }

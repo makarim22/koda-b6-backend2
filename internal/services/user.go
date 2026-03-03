@@ -4,6 +4,7 @@ import (
 	"backend/internal/models"
 	"backend/internal/repository"
 	"fmt"
+	"errors"
 )
 
 type UserService struct {
@@ -43,4 +44,26 @@ func (s *UserService) Create(payload *models.UserCreatePayload) (*models.User, e
     }
 
     return createdUser, nil
+}
+
+func(s* UserService) Update(id int, payload *models.UserUpdatePayload) (*models.User, error){
+	if payload.Name == "" {
+        return nil, errors.New("user name cannot be empty")
+    }
+    if payload.Password == "" {
+        return nil, errors.New("user email cannot be empty")
+    }
+
+	 userToUpdate := &models.User{
+        Name:  payload.Name,
+        Email: payload.Password,
+        Phone: payload.Phone,
+    }
+
+    updatedUser, err := s.repo.Update(id, userToUpdate)
+    if err != nil {
+        return nil, fmt.Errorf("failed to update user: %w", err)
+    }
+
+    return updatedUser, nil
 }

@@ -1,10 +1,11 @@
 package handlers
 
 import (
+	"backend/internal/models"
 	"backend/internal/services"
+	"fmt"
 	"net/http"
 	"strconv"
-	"backend/internal/models"
 
 	"github.com/gin-gonic/gin"
 )
@@ -91,5 +92,66 @@ func (h *UserHandler) CreateUser(ctx *gin.Context) {
 		"success": true,
 		"message": "User created successfully",
 		"results": createdUser,
+	})
+}
+
+func (h *UserHandler) UpdateUser(ctx *gin.Context) {
+	idStr := ctx.Param("id")
+	if idStr == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"message": "User ID is required",
+		})
+		return
+	}
+
+	fmt.Println(idStr)
+
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"message": "Invalid User ID format",
+		})
+		return
+	}
+
+	var payload models.UserUpdatePayload 
+	if err := ctx.ShouldBindJSON(&payload); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"message": "Invalid request body: " + err.Error(),
+		})
+		return
+	}
+
+	updatedUser, err := h.service.Update(id, &payload)
+	if err != nil {
+		if err.Error() == "user not found" {
+			ctx.JSON(http.StatusNotFound, gin.H{
+				"success": false,
+				"message": "User not found",
+			})
+			return
+		}
+		if err.Error() == "user name cannot be empty" || err.Error() == "user email cannot be empty" {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"success": false,
+				"message": err.Error(),
+			})
+			return
+		}
+		
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": "Failed to update user: " + err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "User updated successfully",
+		"results": updatedUser,
 	})
 }
