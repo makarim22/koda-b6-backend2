@@ -18,6 +18,7 @@ func main() {
 	{
 		users.GET("", userHandler.GetAll)
 		users.GET("/:id", userHandler.GetByID)
+		users.POST("", userHandler.CreateUser)
 	}
 
 	r.Run("localhost:8888")
